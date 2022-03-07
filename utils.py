@@ -39,12 +39,15 @@ def _calc_metrics(pred_labels, true_labels, log_dir, home_path):
     np.save(os.path.join(labels_save_path, "predicted_labels.npy"), pred_labels)
     np.save(os.path.join(labels_save_path, "true_labels.npy"), true_labels)
 
-    r = classification_report(true_labels, pred_labels, digits=6, output_dict=True)
-    cm = confusion_matrix(true_labels, pred_labels)
+    # save classification report
+    names = ['W', "N1", "N2", "N3", "REM"]
+    r = classification_report(true_labels, pred_labels, digits=6, output_dict=True, target_names=names)
+    del (r['accuracy'])
     df = pd.DataFrame(r)
-    df["cohen"] = cohen_kappa_score(true_labels, pred_labels)
-    df["accuracy"] = accuracy_score(true_labels, pred_labels)
+    df.loc["accuracy"] = accuracy_score(true_labels, pred_labels)
+    df.loc["cohen"] = cohen_kappa_score(true_labels, pred_labels)
     df = df * 100
+    df.loc["support"] = df.loc["support"] / 100
 
     # save classification report
     exp_name = os.path.split(os.path.dirname(log_dir))[-1]
@@ -54,6 +57,7 @@ def _calc_metrics(pred_labels, true_labels, log_dir, home_path):
     df.to_excel(report_Save_path)
 
     # save confusion matrix
+    cm = confusion_matrix(true_labels, pred_labels)
     cm_file_name = f"{exp_name}_{training_mode}_confusion_matrix.torch"
     cm_Save_path = os.path.join(home_path, log_dir, cm_file_name)
     torch.save(cm, cm_Save_path)

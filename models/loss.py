@@ -1,8 +1,8 @@
 import torch
 import numpy as np
 
-class NTXentLoss(torch.nn.Module):
-
+class NTXentLoss(torch.nn.Module): # NT-Xent is an abbreviation for "Normalized Temperature-scaled Cross Entropy"
+    # 来自论文`A Simple Framework for Contrastive Learning of Visual Representations`
     def __init__(self, device, batch_size, temperature, use_cosine_similarity):
         super(NTXentLoss, self).__init__()
         self.batch_size = batch_size
