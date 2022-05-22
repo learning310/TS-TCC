@@ -32,7 +32,7 @@ class Load_Dataset(Dataset):
         if training_mode == "self_supervised":  # no need to apply Augmentations in other modes
             self.aug1, self.aug2 = DataTransform(self.x_data, config)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index): # NOTE: 为了统一自监督和有监督的dataloader
         if self.training_mode == "self_supervised":
             return self.x_data[index], self.y_data[index], self.aug1[index], self.aug2[index]
         else:

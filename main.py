@@ -18,9 +18,9 @@ parser = argparse.ArgumentParser()
 
 ######################## Model parameters ########################
 home_dir = os.getcwd()
-parser.add_argument('--experiment_description', default='Exp1', type=str,
+parser.add_argument('--experiment_description', default='Attempt', type=str,
                     help='Experiment Description')
-parser.add_argument('--run_description', default='run1', type=str,
+parser.add_argument('--run_description', default='test', type=str,
                     help='Experiment Description')
 parser.add_argument('--seed', default=0, type=int,
                     help='seed value')

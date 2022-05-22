@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from models.loss import NTXentLoss
+from models.loss import SupConLoss
 
 
 
@@ -83,6 +84,12 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             nt_xent_criterion = NTXentLoss(device, config.batch_size, config.Context_Cont.temperature,
                                            config.Context_Cont.use_cosine_similarity)
             loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 + nt_xent_criterion(zis, zjs) * lambda2
+            
+            # sup_con_loss = SupConLoss()
+            # zis = zis.unsqueeze(1)
+            # zjs = zjs.unsqueeze(1)
+            # features = torch.cat((zis, zjs), dim=1)
+            # loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 + sup_con_loss(features, labels) * lambda2
         else:
             output = model(data)
             predictions, features = output
