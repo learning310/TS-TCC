@@ -85,8 +85,7 @@ class SupConLoss(torch.nn.Module):
 
     def forward(self, features, labels=None, mask=None):
         """Compute loss for model. If both `labels` and `mask` are None,
-        it degenerates to SimCLR unsupervised loss:
-        https://arxiv.org/pdf/2002.05709.pdf
+        it degenerates to SimCLR unsupervised loss.
         Args:
             features: hidden vector of shape [bsz, n_views, ...].
             labels: ground truth of shape [bsz].
@@ -95,9 +94,7 @@ class SupConLoss(torch.nn.Module):
         Returns:
             A loss scalar.
         """
-        device = (torch.device('cuda')
-                  if features.is_cuda
-                  else torch.device('cpu'))
+        device = (torch.device('cuda') if features.is_cuda else torch.device('cpu'))
 
         if len(features.shape) < 3:
             raise ValueError('`features` needs to be [bsz, n_views, ...],'
@@ -105,6 +102,7 @@ class SupConLoss(torch.nn.Module):
         if len(features.shape) > 3:
             features = features.view(features.shape[0], features.shape[1], -1)
 
+        # generate mask
         batch_size = features.shape[0]
         if labels is not None and mask is not None:
             raise ValueError('Cannot define both `labels` and `mask`')
@@ -133,19 +131,17 @@ class SupConLoss(torch.nn.Module):
         anchor_dot_contrast = torch.div(
             torch.matmul(anchor_feature, contrast_feature.T),
             self.temperature)
-        # for numerical stability
         logits_max, _ = torch.max(anchor_dot_contrast, dim=1, keepdim=True)
-        logits = anchor_dot_contrast - logits_max.detach()
+        logits = anchor_dot_contrast - logits_max.detach() # for numerical stability
 
-        # tile mask
-        mask = mask.repeat(anchor_count, contrast_count)
         # mask-out self-contrast cases
+        mask = mask.repeat(anchor_count, contrast_count) # tile mask
         logits_mask = torch.scatter(
             torch.ones_like(mask),
             1,
             torch.arange(batch_size * anchor_count).view(-1, 1).to(device),
             0
-        )
+        ) # NOTE: 只有对角线为0，剩下全是1的矩阵，从而去除了样本自身的loss
         mask = mask * logits_mask
 
         # compute log_prob
