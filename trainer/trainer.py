@@ -84,12 +84,25 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             nt_xent_criterion = NTXentLoss(device, config.batch_size, config.Context_Cont.temperature,
                                            config.Context_Cont.use_cosine_similarity)
             loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 + nt_xent_criterion(zis, zjs) * lambda2
-            
+
+            # NOTE: SupConLoss必须先归一化
+            # NOTE: 验证SupConLoss的有效性（基于原始架构）
+            # zis = F.normalize(zis, 1)
+            # zjs = F.normalize(zjs, 1)
+            # features = torch.cat((zis.unsqueeze(1), zjs.unsqueeze(1)), dim=1)
             # sup_con_loss = SupConLoss()
-            # zis = zis.unsqueeze(1)
-            # zjs = zjs.unsqueeze(1)
-            # features = torch.cat((zis, zjs), dim=1)
             # loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 + sup_con_loss(features, labels) * lambda2
+            
+            # NOTE: 验证SupConLoss的有效性（dot_similarity）
+            # predictions1 = F.normalize(predictions1, 1)
+            # predictions2 = F.normalize(predictions2, 1)
+
+            # nt_xent_criterion = NTXentLoss(device, config.batch_size, config.Context_Cont.temperature, False)
+            # loss = nt_xent_criterion(predictions1, predictions2)
+
+            # features = torch.cat((predictions1.unsqueeze(1), predictions2.unsqueeze(1)), dim=1)
+            # sup_con_loss = SupConLoss()
+            # loss = sup_con_loss(features, labels)
         else:
             output = model(data)
             predictions, features = output

@@ -141,7 +141,7 @@ class SupConLoss(torch.nn.Module):
             1,
             torch.arange(batch_size * anchor_count).view(-1, 1).to(device),
             0
-        ) # NOTE: 只有对角线为0，剩下全是1的矩阵，从而去除了样本自身的loss
+        ) # NOTE: 只有对角线为0，剩下全是1的矩阵，从而去除了样本自身的loss，但剩下了对比视角的样本
         mask = mask * logits_mask
 
         # compute log_prob
